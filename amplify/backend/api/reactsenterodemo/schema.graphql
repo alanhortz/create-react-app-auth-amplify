@@ -1,0 +1,40 @@
+
+type Exchange 
+    @auth(rules: [{ allow: owner }])
+    @aws_iam 
+    @aws_cognito_user_pools
+    @model
+    @key(name: "bySource", fields: ["sourceID", "id"])
+    @key(name: "byDestination", fields: ["destinationID", "id"])
+    @key(name: "bySourceByType", fields: ["sourceID", "type"])
+    @key(name: "byDestinationByType", fields: ["destinationID", "type"]) {
+  id: ID!
+  value: String
+  type: String
+  permission: String
+  request: String
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+  sourceID: ID! @aws_iam @aws_cognito_user_pools
+  destinationID: ID! @aws_iam @aws_cognito_user_pools
+}
+
+type Member 
+  @auth(rules: [{ allow: owner }])
+  @aws_iam 
+  @aws_cognito_user_pools
+  @model
+  @key(name: "byUsername", fields: ["username", "id"], queryField: "memberByUsername")
+  @key(name: "byNickname", fields: ["nickname", "id"], queryField: "memberByNickname")
+  @key(name: "byCognitoID", fields: ["cognitoID", "id"], queryField: "memberByCognitoID") 
+   {
+  id: ID!
+  cognitoID: String!
+  nickname: String
+  username: String!
+  exchangesAsSourceByType: [Exchange] @connection(keyName: "bySourceByType", fields: ["id"])
+  exchangesAsDestinationByType: [Exchange] @connection(keyName: "byDestinationByType", fields: ["id"])
+  createdAt: AWSDateTime!
+  updatedAt: AWSDateTime!
+}
+
